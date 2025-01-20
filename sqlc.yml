@@ -1,0 +1,10 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "pkg/database/query"
+    schema: "pkg/database/migrations"
+    gen:
+      go:
+        package: "tixmaster"
+        out: "pkg/database/sqlc"
+        sql_package: "pgx/v5"
