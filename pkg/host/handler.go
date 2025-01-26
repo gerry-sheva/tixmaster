@@ -10,19 +10,17 @@ import (
 
 type HostApi struct {
 	dbpool *pgxpool.Pool
-	rwJSON *util.RwJSON
 }
 
-func New(dbpool *pgxpool.Pool, rwJSON *util.RwJSON) *HostApi {
+func New(dbpool *pgxpool.Pool) *HostApi {
 	return &HostApi{
 		dbpool,
-		rwJSON,
 	}
 }
 
 func (api *HostApi) NewHost(w http.ResponseWriter, r *http.Request) {
 	var p NewHostInput
-	if err := api.rwJSON.Read(w, r, &p); err != nil {
+	if err := util.ReadJSON(w, r, &p); err != nil {
 		e.ErrorResponse(w, http.StatusBadRequest, err.Error())
 	}
 

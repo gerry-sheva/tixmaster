@@ -10,19 +10,17 @@ import (
 
 type EventApi struct {
 	dbpool *pgxpool.Pool
-	rwJSON *util.RwJSON
 }
 
-func New(dbpool *pgxpool.Pool, rwJSON *util.RwJSON) *EventApi {
+func New(dbpool *pgxpool.Pool) *EventApi {
 	return &EventApi{
 		dbpool,
-		rwJSON,
 	}
 }
 
 func (api *EventApi) NewEvent(w http.ResponseWriter, r *http.Request) {
 	var p NewEventInput
-	if err := api.rwJSON.Read(w, r, &p); err != nil {
+	if err := util.ReadJSON(w, r, &p); err != nil {
 		e.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}

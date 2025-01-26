@@ -10,19 +10,17 @@ import (
 
 type VenueAPI struct {
 	dbpool *pgxpool.Pool
-	rwJSON *util.RwJSON
 }
 
-func New(dbpool *pgxpool.Pool, rwJSON *util.RwJSON) *VenueAPI {
+func New(dbpool *pgxpool.Pool) *VenueAPI {
 	return &VenueAPI{
 		dbpool,
-		rwJSON,
 	}
 }
 
 func (api *VenueAPI) NewVenue(w http.ResponseWriter, r *http.Request) {
 	var input NewVenueInput
-	if err := api.rwJSON.Read(w, r, &input); err != nil {
+	if err := util.ReadJSON(w, r, &input); err != nil {
 		e.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}

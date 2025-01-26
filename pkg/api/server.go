@@ -11,7 +11,6 @@ import (
 	"github.com/gerry-sheva/tixmaster/pkg/auth"
 	"github.com/gerry-sheva/tixmaster/pkg/event"
 	"github.com/gerry-sheva/tixmaster/pkg/host"
-	"github.com/gerry-sheva/tixmaster/pkg/util"
 	"github.com/gerry-sheva/tixmaster/pkg/venue"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -27,10 +26,9 @@ type app struct {
 	cfg    config
 	logger *slog.Logger
 	dbpool *pgxpool.Pool
-	rwJSON *util.RwJSON
 }
 
-func StartServer(dbpool *pgxpool.Pool, rwJSON *util.RwJSON) {
+func StartServer(dbpool *pgxpool.Pool) {
 	var cfg config
 
 	flag.IntVar(&cfg.port, "port", 8080, "API server port")
@@ -43,13 +41,12 @@ func StartServer(dbpool *pgxpool.Pool, rwJSON *util.RwJSON) {
 		cfg,
 		logger,
 		dbpool,
-		rwJSON,
 	}
 
-	usersAPI := auth.New(app.dbpool, app.rwJSON)
-	eventAPI := event.New(app.dbpool, app.rwJSON)
-	hostAPI := host.New(app.dbpool, app.rwJSON)
-	venueAPI := venue.New(app.dbpool, app.rwJSON)
+	usersAPI := auth.New(app.dbpool)
+	eventAPI := event.New(app.dbpool)
+	hostAPI := host.New(app.dbpool)
+	venueAPI := venue.New(app.dbpool)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", app.healthcheckHandler)

@@ -9,7 +9,7 @@ import (
 func ErrorResponse(w http.ResponseWriter, status int, message any) {
 	envelope := util.Envelope{"error": message}
 
-	err := util.NewRwJSON().Write(w, status, envelope, nil)
+	err := util.WriteJSON(w, status, envelope, nil)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}

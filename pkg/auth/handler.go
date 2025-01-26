@@ -10,19 +10,17 @@ import (
 
 type UsersAPI struct {
 	dbpool *pgxpool.Pool
-	rwJSON *util.RwJSON
 }
 
-func New(dbpool *pgxpool.Pool, rwJSON *util.RwJSON) *UsersAPI {
+func New(dbpool *pgxpool.Pool) *UsersAPI {
 	return &UsersAPI{
 		dbpool,
-		rwJSON,
 	}
 }
 
 func (api *UsersAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	var p AuthInput
-	if err := api.rwJSON.Read(w, r, &p); err != nil {
+	if err := util.ReadJSON(w, r, &p); err != nil {
 		e.ErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
