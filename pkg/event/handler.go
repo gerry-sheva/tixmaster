@@ -3,7 +3,7 @@ package event
 import (
 	"net/http"
 
-	e "github.com/gerry-sheva/tixmaster/pkg/common/error"
+	"github.com/gerry-sheva/tixmaster/pkg/common/apierror"
 	"github.com/gerry-sheva/tixmaster/pkg/util"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -21,12 +21,12 @@ func New(dbpool *pgxpool.Pool) *EventApi {
 func (api *EventApi) NewEvent(w http.ResponseWriter, r *http.Request) {
 	var p NewEventInput
 	if err := util.ReadJSON(w, r, &p); err != nil {
-		e.ErrorResponse(w, http.StatusBadRequest, err.Error())
+		apierror.Write(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := newEvent(r.Context(), api.dbpool, &p); err != nil {
-		e.ServerErrorResponse(w)
+		apierror.ServerErrorResponse(w)
 		return
 	}
 

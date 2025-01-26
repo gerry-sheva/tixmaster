@@ -1,4 +1,4 @@
-package error
+package apierror
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"github.com/gerry-sheva/tixmaster/pkg/util"
 )
 
-func ErrorResponse(w http.ResponseWriter, status int, message any) {
+func Write(w http.ResponseWriter, status int, message any) {
 	envelope := util.Envelope{"error": message}
 
 	err := util.WriteJSON(w, status, envelope, nil)
@@ -17,19 +17,19 @@ func ErrorResponse(w http.ResponseWriter, status int, message any) {
 
 func ServerErrorResponse(w http.ResponseWriter) {
 	msg := "The server encountered a problem and could not process your request"
-	ErrorResponse(w, http.StatusInternalServerError, msg)
+	Write(w, http.StatusInternalServerError, msg)
 }
 
 func NotFoundResponse(w http.ResponseWriter) {
 	msg := "The requested resource could not be found"
-	ErrorResponse(w, http.StatusNotFound, msg)
+	Write(w, http.StatusNotFound, msg)
 }
 
 func MethodNotAllowedResponse(w http.ResponseWriter) {
 	msg := "Unsupported method"
-	ErrorResponse(w, http.StatusMethodNotAllowed, msg)
+	Write(w, http.StatusMethodNotAllowed, msg)
 }
 
 func FailedValidationResponse(w http.ResponseWriter, errors map[string]string) {
-	ErrorResponse(w, http.StatusUnprocessableEntity, errors)
+	Write(w, http.StatusUnprocessableEntity, errors)
 }
