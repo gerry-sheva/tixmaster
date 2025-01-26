@@ -10,13 +10,8 @@ import (
 )
 
 type Envelope map[string]any
-type RwJSON struct{}
 
-func NewRwJSON() *RwJSON {
-	return &RwJSON{}
-}
-
-func (rwJSON *RwJSON) Read(w http.ResponseWriter, r *http.Request, dst any) error {
+func ReadJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 	maxBytes := 1_048_576
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
@@ -63,7 +58,7 @@ func (rwJSON *RwJSON) Read(w http.ResponseWriter, r *http.Request, dst any) erro
 	return nil
 }
 
-func (rwJSON *RwJSON) Write(w http.ResponseWriter, status int, data Envelope, headers http.Header) error {
+func WriteJSON(w http.ResponseWriter, status int, data Envelope, headers http.Header) error {
 	js, err := json.Marshal(data)
 	if err != nil {
 		return err
