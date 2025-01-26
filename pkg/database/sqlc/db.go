@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.27.0
 
-package tixmaster
+package sqlc
 
 import (
 	"context"

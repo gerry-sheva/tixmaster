@@ -7,7 +7,7 @@ import (
 )
 
 func ConnectDB() *pgxpool.Pool {
-	dbpool, err := pgxpool.New(context.Background(), "postgresql://postgres:passw0rd@localhost:5432/tixmaster")
+	dbpool, err := pgxpool.New(context.Background(), "postgresql://postgres:passw0rd@localhost:5432/tixmaster?sslmode=disable")
 	if err != nil {
 		panic(err)
 	}

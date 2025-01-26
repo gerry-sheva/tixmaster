@@ -5,6 +5,6 @@ sql:
     schema: "pkg/database/migrations"
     gen:
       go:
-        package: "tixmaster"
+        package: "sqlc"
         out: "pkg/database/sqlc"
         sql_package: "pgx/v5"

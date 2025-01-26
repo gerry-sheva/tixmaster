@@ -9,7 +9,10 @@ import (
 	"time"
 
 	"github.com/gerry-sheva/tixmaster/pkg/auth"
+	"github.com/gerry-sheva/tixmaster/pkg/event"
+	"github.com/gerry-sheva/tixmaster/pkg/host"
 	"github.com/gerry-sheva/tixmaster/pkg/util"
+	"github.com/gerry-sheva/tixmaster/pkg/venue"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -44,10 +47,16 @@ func StartServer(dbpool *pgxpool.Pool, rwJSON *util.RwJSON) {
 	}
 
 	usersAPI := auth.New(app.dbpool, app.rwJSON)
+	eventAPI := event.New(app.dbpool, app.rwJSON)
+	hostAPI := host.New(app.dbpool, app.rwJSON)
+	venueAPI := venue.New(app.dbpool, app.rwJSON)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", app.healthcheckHandler)
 	mux.HandleFunc("/register", usersAPI.RegisterUser)
+	mux.HandleFunc("POST /event", eventAPI.NewEvent)
+	mux.HandleFunc("POST /host", hostAPI.NewHost)
+	mux.HandleFunc("POST /venue", venueAPI.NewVenue)
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),

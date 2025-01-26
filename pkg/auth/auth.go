@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 
-	tixmaster "github.com/gerry-sheva/tixmaster/pkg/database/sqlc"
+	sqlc "github.com/gerry-sheva/tixmaster/pkg/database/sqlc"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -13,13 +13,13 @@ func register(ctx context.Context, dbpool *pgxpool.Pool, p *AuthInput) error {
 		return err
 	}
 
-	params := tixmaster.NewUserParams{
+	params := sqlc.NewUserParams{
 		Email:    p.Email,
 		Username: p.Username,
 		Password: password_hash,
 	}
 
-	_, err = tixmaster.New(dbpool).NewUser(ctx, params)
+	_, err = sqlc.New(dbpool).NewUser(ctx, params)
 	if err != nil {
 		return err
 	}
