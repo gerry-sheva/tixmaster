@@ -13,9 +13,10 @@ import (
 	"github.com/gerry-sheva/tixmaster/pkg/host"
 	"github.com/gerry-sheva/tixmaster/pkg/venue"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/meilisearch/meilisearch-go"
 )
 
-const version = "1.0.0"
+const version = "0.1.0"
 
 type config struct {
 	port int
@@ -23,12 +24,13 @@ type config struct {
 }
 
 type app struct {
-	cfg    config
-	logger *slog.Logger
-	dbpool *pgxpool.Pool
+	cfg         config
+	logger      *slog.Logger
+	dbpool      *pgxpool.Pool
+	meilisearch meilisearch.ServiceManager
 }
 
-func StartServer(dbpool *pgxpool.Pool) {
+func StartServer(dbpool *pgxpool.Pool, meilisearch meilisearch.ServiceManager) {
 	var cfg config
 
 	flag.IntVar(&cfg.port, "port", 8080, "API server port")
@@ -41,10 +43,11 @@ func StartServer(dbpool *pgxpool.Pool) {
 		cfg,
 		logger,
 		dbpool,
+		meilisearch,
 	}
 
 	usersAPI := auth.New(app.dbpool)
-	eventAPI := event.New(app.dbpool)
+	eventAPI := event.New(app.dbpool, app.meilisearch)
 	hostAPI := host.New(app.dbpool)
 	venueAPI := venue.New(app.dbpool)
 

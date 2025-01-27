@@ -7,17 +7,17 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func newHost(ctx context.Context, dbpool *pgxpool.Pool, p *NewHostInput) error {
+func newHost(ctx context.Context, dbpool *pgxpool.Pool, p *NewHostInput) (sqlc.NewHostRow, error) {
 	params := sqlc.NewHostParams{
 		Name:   p.Name,
 		Avatar: p.Avatar,
 		Bio:    p.Bio,
 	}
 
-	_, err := sqlc.New(dbpool).NewHost(ctx, params)
+	host, err := sqlc.New(dbpool).NewHost(ctx, params)
 	if err != nil {
-		return err
+		return sqlc.NewHostRow{}, err
 	}
 
-	return nil
+	return host, nil
 }

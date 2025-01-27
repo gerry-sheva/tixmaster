@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func newVenue(ctx context.Context, dbpool *pgxpool.Pool, p NewVenueInput) error {
+func newVenue(ctx context.Context, dbpool *pgxpool.Pool, p NewVenueInput) (sqlc.NewVenueRow, error) {
 	params := sqlc.NewVenueParams{
 		Name:     p.Name,
 		Capacity: p.Capacity,
@@ -15,10 +15,10 @@ func newVenue(ctx context.Context, dbpool *pgxpool.Pool, p NewVenueInput) error 
 		State:    p.State,
 	}
 
-	_, err := sqlc.New(dbpool).NewVenue(ctx, params)
+	venue, err := sqlc.New(dbpool).NewVenue(ctx, params)
 	if err != nil {
-		return err
+		return sqlc.NewVenueRow{}, err
 	}
 
-	return nil
+	return venue, nil
 }

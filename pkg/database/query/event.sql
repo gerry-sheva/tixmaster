@@ -2,9 +2,10 @@
 with inserted_event as (
     insert into event (name, summary, description, available_ticket, starting_date, ending_date, venue_id, host_id)
     values ($1, $2, $3, $4, $5, $6, $7, $8)
-    returning name, summary, starting_date, ending_date, venue_id, host_id
+    returning event_id, name, summary, starting_date, ending_date, venue_id, host_id
 )
 select
+    ie.event_id as id,
     ie.name,
     ie.summary,
     ie.starting_date,

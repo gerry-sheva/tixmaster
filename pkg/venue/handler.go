@@ -25,8 +25,11 @@ func (api *VenueAPI) NewVenue(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := newVenue(r.Context(), api.dbpool, input); err != nil {
+	venue, err := newVenue(r.Context(), api.dbpool, input)
+	if err != nil {
 		apierror.ServerErrorResponse(w)
 		return
 	}
+
+	util.WriteJSON(w, http.StatusOK, util.Envelope{"venue": venue}, nil)
 }

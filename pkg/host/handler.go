@@ -24,8 +24,11 @@ func (api *HostApi) NewHost(w http.ResponseWriter, r *http.Request) {
 		apierror.Write(w, http.StatusBadRequest, err.Error())
 	}
 
-	if err := newHost(r.Context(), api.dbpool, &p); err != nil {
+	host, err := newHost(r.Context(), api.dbpool, &p)
+	if err != nil {
 		apierror.ServerErrorResponse(w)
 		return
 	}
+
+	util.WriteJSON(w, http.StatusOK, util.Envelope{"host": host}, nil)
 }

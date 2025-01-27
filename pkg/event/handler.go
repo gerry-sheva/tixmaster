@@ -6,15 +6,18 @@ import (
 	"github.com/gerry-sheva/tixmaster/pkg/common/apierror"
 	"github.com/gerry-sheva/tixmaster/pkg/util"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/meilisearch/meilisearch-go"
 )
 
 type EventApi struct {
-	dbpool *pgxpool.Pool
+	dbpool      *pgxpool.Pool
+	meilisearch meilisearch.ServiceManager
 }
 
-func New(dbpool *pgxpool.Pool) *EventApi {
+func New(dbpool *pgxpool.Pool, meilisearch meilisearch.ServiceManager) *EventApi {
 	return &EventApi{
 		dbpool,
+		meilisearch,
 	}
 }
 
@@ -25,10 +28,11 @@ func (api *EventApi) NewEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := newEvent(r.Context(), api.dbpool, &p); err != nil {
+	event, err := newEvent(r.Context(), api.dbpool, api.meilisearch, &p)
+	if err != nil {
 		apierror.ServerErrorResponse(w)
 		return
 	}
 
-	return
+	util.WriteJSON(w, http.StatusOK, util.Envelope{"event": event}, nil)
 }
