@@ -12,6 +12,7 @@ import (
 	"github.com/gerry-sheva/tixmaster/pkg/event"
 	"github.com/gerry-sheva/tixmaster/pkg/host"
 	"github.com/gerry-sheva/tixmaster/pkg/venue"
+	"github.com/imagekit-developer/imagekit-go"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/meilisearch/meilisearch-go"
 )
@@ -28,9 +29,10 @@ type app struct {
 	logger      *slog.Logger
 	dbpool      *pgxpool.Pool
 	meilisearch meilisearch.ServiceManager
+	ik          *imagekit.ImageKit
 }
 
-func StartServer(dbpool *pgxpool.Pool, meilisearch meilisearch.ServiceManager) {
+func StartServer(dbpool *pgxpool.Pool, meilisearch meilisearch.ServiceManager, ik *imagekit.ImageKit) {
 	var cfg config
 
 	flag.IntVar(&cfg.port, "port", 8080, "API server port")
@@ -44,12 +46,13 @@ func StartServer(dbpool *pgxpool.Pool, meilisearch meilisearch.ServiceManager) {
 		logger,
 		dbpool,
 		meilisearch,
+		ik,
 	}
 
 	usersAPI := auth.New(app.dbpool)
 	eventAPI := event.New(app.dbpool, app.meilisearch)
 	hostAPI := host.New(app.dbpool)
-	venueAPI := venue.New(app.dbpool)
+	venueAPI := venue.New(app.dbpool, app.ik)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", app.healthcheckHandler)
