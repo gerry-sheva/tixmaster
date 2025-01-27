@@ -18,6 +18,25 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
 
+	if err := decodeJSON(dec, dst); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ReadJSONForm(jsonValue string, dst any) error {
+	dec := json.NewDecoder(strings.NewReader(jsonValue))
+	dec.DisallowUnknownFields()
+
+	if err := decodeJSON(dec, dst); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func decodeJSON(dec *json.Decoder, dst any) error {
 	err := dec.Decode(dst)
 	if err != nil {
 		var syntaxError *json.UnmarshalTypeError
@@ -55,6 +74,7 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 			return err
 		}
 	}
+
 	return nil
 }
 

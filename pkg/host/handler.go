@@ -19,12 +19,13 @@ func New(dbpool *pgxpool.Pool) *HostApi {
 }
 
 func (api *HostApi) NewHost(w http.ResponseWriter, r *http.Request) {
-	var p NewHostInput
-	if err := util.ReadJSON(w, r, &p); err != nil {
+	var input NewHostInput
+	if err := util.ReadJSONForm(r.FormValue("host"), &input); err != nil {
 		apierror.Write(w, http.StatusBadRequest, err.Error())
+		return
 	}
 
-	host, err := newHost(r.Context(), api.dbpool, &p)
+	host, err := newHost(r.Context(), api.dbpool, &input)
 	if err != nil {
 		apierror.ServerErrorResponse(w)
 		return

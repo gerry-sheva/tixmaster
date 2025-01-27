@@ -22,13 +22,13 @@ func New(dbpool *pgxpool.Pool, meilisearch meilisearch.ServiceManager) *EventApi
 }
 
 func (api *EventApi) NewEvent(w http.ResponseWriter, r *http.Request) {
-	var p NewEventInput
-	if err := util.ReadJSON(w, r, &p); err != nil {
+	var input NewEventInput
+	if err := util.ReadJSONForm(r.FormValue("event"), &input); err != nil {
 		apierror.Write(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	event, err := newEvent(r.Context(), api.dbpool, api.meilisearch, &p)
+	event, err := newEvent(r.Context(), api.dbpool, api.meilisearch, &input)
 	if err != nil {
 		apierror.ServerErrorResponse(w)
 		return

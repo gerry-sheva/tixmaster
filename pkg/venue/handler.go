@@ -20,7 +20,7 @@ func New(dbpool *pgxpool.Pool) *VenueAPI {
 
 func (api *VenueAPI) NewVenue(w http.ResponseWriter, r *http.Request) {
 	var input NewVenueInput
-	if err := util.ReadJSON(w, r, &input); err != nil {
+	if err := util.ReadJSONForm(r.FormValue("venue"), &input); err != nil {
 		apierror.Write(w, http.StatusBadRequest, err.Error())
 		return
 	}
