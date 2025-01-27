@@ -6,6 +6,7 @@ create table venue (
     capacity integer not null,
     city text not null,
     state text not null,
+    img text not null,
     created_at timestamptz not null default now (),
     updated_at timestamptz,
     deleted_at timestamptz
@@ -35,6 +36,8 @@ create table event (
     summary text not null,
     description text not null,
     available_ticket integer not null,
+    thumbnail text not null,
+    banner text not null,
     starting_date timestamptz not null,
     ending_date timestamptz not null,
     created_at timestamptz not null default now (),

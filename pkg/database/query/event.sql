@@ -1,8 +1,8 @@
 -- name: NewEvent :one
 with inserted_event as (
-    insert into event (name, summary, description, available_ticket, starting_date, ending_date, venue_id, host_id)
-    values ($1, $2, $3, $4, $5, $6, $7, $8)
-    returning event_id, name, summary, starting_date, ending_date, venue_id, host_id
+    insert into event (name, summary, description, available_ticket, thumbnail, banner, starting_date, ending_date, venue_id, host_id)
+    values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    returning event_id, name, summary, thumbnail, starting_date, ending_date, venue_id, host_id
 )
 select
     ie.event_id as id,
@@ -10,6 +10,7 @@ select
     ie.summary,
     ie.starting_date,
     ie.ending_date,
+    ie.thumbnail,
     v.name as venue_name,
     v.city,
     v.state,

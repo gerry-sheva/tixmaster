@@ -50,8 +50,8 @@ func StartServer(dbpool *pgxpool.Pool, meilisearch meilisearch.ServiceManager, i
 	}
 
 	usersAPI := auth.New(app.dbpool)
-	eventAPI := event.New(app.dbpool, app.meilisearch)
-	hostAPI := host.New(app.dbpool)
+	eventAPI := event.New(app.dbpool, app.meilisearch, ik)
+	hostAPI := host.New(app.dbpool, ik)
 	venueAPI := venue.New(app.dbpool, app.ik)
 
 	mux := http.NewServeMux()

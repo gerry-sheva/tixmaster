@@ -13,9 +13,9 @@ import (
 
 const newEvent = `-- name: NewEvent :one
 with inserted_event as (
-    insert into event (name, summary, description, available_ticket, starting_date, ending_date, venue_id, host_id)
-    values ($1, $2, $3, $4, $5, $6, $7, $8)
-    returning event_id, name, summary, starting_date, ending_date, venue_id, host_id
+    insert into event (name, summary, description, available_ticket, thumbnail, banner, starting_date, ending_date, venue_id, host_id)
+    values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    returning event_id, name, summary, thumbnail, starting_date, ending_date, venue_id, host_id
 )
 select
     ie.event_id as id,
@@ -23,6 +23,7 @@ select
     ie.summary,
     ie.starting_date,
     ie.ending_date,
+    ie.thumbnail,
     v.name as venue_name,
     v.city,
     v.state,
@@ -42,6 +43,8 @@ type NewEventParams struct {
 	Summary         string
 	Description     string
 	AvailableTicket int32
+	Thumbnail       string
+	Banner          string
 	StartingDate    pgtype.Timestamptz
 	EndingDate      pgtype.Timestamptz
 	VenueID         pgtype.UUID
@@ -54,6 +57,7 @@ type NewEventRow struct {
 	Summary      string
 	StartingDate pgtype.Timestamptz
 	EndingDate   pgtype.Timestamptz
+	Thumbnail    string
 	VenueName    string
 	City         string
 	State        string
@@ -68,6 +72,8 @@ func (q *Queries) NewEvent(ctx context.Context, arg NewEventParams) (NewEventRow
 		arg.Summary,
 		arg.Description,
 		arg.AvailableTicket,
+		arg.Thumbnail,
+		arg.Banner,
 		arg.StartingDate,
 		arg.EndingDate,
 		arg.VenueID,
@@ -80,6 +86,7 @@ func (q *Queries) NewEvent(ctx context.Context, arg NewEventParams) (NewEventRow
 		&i.Summary,
 		&i.StartingDate,
 		&i.EndingDate,
+		&i.Thumbnail,
 		&i.VenueName,
 		&i.City,
 		&i.State,

@@ -23,7 +23,7 @@ func New(dbpool *pgxpool.Pool, ik *imagekit.ImageKit) *VenueAPI {
 
 func (api *VenueAPI) NewVenue(w http.ResponseWriter, r *http.Request) {
 	var input NewVenueInput
-	img, _, err := r.FormFile("venue_image")
+	img, _, err := r.FormFile("venue_img")
 	if err != nil {
 		apierror.Write(w, http.StatusBadRequest, err.Error())
 		return

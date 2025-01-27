@@ -12,9 +12,9 @@ import (
 )
 
 const newVenue = `-- name: NewVenue :one
-insert into venue (name, capacity, city, state)
-values ($1, $2, $3, $4)
-returning venue_id, name, capacity, city, state
+insert into venue (name, capacity, city, state, img)
+values ($1, $2, $3, $4, $5)
+returning venue_id, name, capacity, city, state, img
 `
 
 type NewVenueParams struct {
@@ -22,6 +22,7 @@ type NewVenueParams struct {
 	Capacity int32
 	City     string
 	State    string
+	Img      string
 }
 
 type NewVenueRow struct {
@@ -30,6 +31,7 @@ type NewVenueRow struct {
 	Capacity int32
 	City     string
 	State    string
+	Img      string
 }
 
 func (q *Queries) NewVenue(ctx context.Context, arg NewVenueParams) (NewVenueRow, error) {
@@ -38,6 +40,7 @@ func (q *Queries) NewVenue(ctx context.Context, arg NewVenueParams) (NewVenueRow
 		arg.Capacity,
 		arg.City,
 		arg.State,
+		arg.Img,
 	)
 	var i NewVenueRow
 	err := row.Scan(
@@ -46,6 +49,7 @@ func (q *Queries) NewVenue(ctx context.Context, arg NewVenueParams) (NewVenueRow
 		&i.Capacity,
 		&i.City,
 		&i.State,
+		&i.Img,
 	)
 	return i, err
 }

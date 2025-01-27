@@ -12,18 +12,17 @@ import (
 )
 
 func newVenue(ctx context.Context, dbpool *pgxpool.Pool, ik *imagekit.ImageKit, img multipart.File, p NewVenueInput) (sqlc.NewVenueRow, error) {
+	resp, err := ik.Uploader.Upload(ctx, img, uploader.UploadParam{
+		FileName: fmt.Sprintf("%s.webp", p.Name),
+	})
+
 	params := sqlc.NewVenueParams{
 		Name:     p.Name,
 		Capacity: p.Capacity,
 		City:     p.City,
 		State:    p.State,
+		Img:      resp.Data.Url,
 	}
-
-	resp, err := ik.Uploader.Upload(ctx, img, uploader.UploadParam{
-		FileName: fmt.Sprintf("%s.webp", p.Name),
-	})
-
-	fmt.Println(resp.Data.Name)
 
 	venue, err := sqlc.New(dbpool).NewVenue(ctx, params)
 	if err != nil {

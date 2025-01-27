@@ -16,6 +16,8 @@ type Event struct {
 	Summary         string
 	Description     string
 	AvailableTicket int32
+	Thumbnail       string
+	Banner          string
 	StartingDate    pgtype.Timestamptz
 	EndingDate      pgtype.Timestamptz
 	CreatedAt       pgtype.Timestamptz
@@ -48,6 +50,7 @@ type Venue struct {
 	Capacity  int32
 	City      string
 	State     string
+	Img       string
 	CreatedAt pgtype.Timestamptz
 	UpdatedAt pgtype.Timestamptz
 	DeletedAt pgtype.Timestamptz
