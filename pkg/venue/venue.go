@@ -16,6 +16,10 @@ func newVenue(ctx context.Context, dbpool *pgxpool.Pool, ik *imagekit.ImageKit, 
 		FileName: fmt.Sprintf("%s.webp", p.Name),
 	})
 
+	if err != nil {
+		return sqlc.NewVenueRow{}, err
+	}
+
 	params := sqlc.NewVenueParams{
 		Name:     p.Name,
 		Capacity: p.Capacity,
