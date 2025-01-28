@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gerry-sheva/tixmaster/pkg/api/middleware"
 	"github.com/gerry-sheva/tixmaster/pkg/auth"
 	"github.com/gerry-sheva/tixmaster/pkg/event"
 	"github.com/gerry-sheva/tixmaster/pkg/host"
@@ -55,7 +56,7 @@ func StartServer(dbpool *pgxpool.Pool, meilisearch meilisearch.ServiceManager, i
 	venueAPI := venue.New(app.dbpool, app.ik)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", app.healthcheckHandler)
+	mux.Handle("/", middleware.Auth(http.HandlerFunc(app.healthcheckHandler)))
 	mux.HandleFunc("POST /register", usersAPI.RegisterUser)
 	mux.HandleFunc("POST /login", usersAPI.LoginUser)
 	mux.HandleFunc("POST /event", eventAPI.NewEvent)
