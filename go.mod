@@ -11,6 +11,7 @@ require (
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/creasty/defaults v1.6.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/imagekit-developer/imagekit-go v0.0.0-20240521071536-1d7e6e67fcd7 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

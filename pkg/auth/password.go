@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"runtime"
 	"strings"
 
 	"golang.org/x/crypto/argon2"
@@ -28,8 +27,8 @@ type Params struct {
 
 var defaultParams = &Params{
 	memory:      64 * 1024,
-	iterations:  1,
-	parallelism: uint8(runtime.NumCPU()),
+	iterations:  3,
+	parallelism: 2,
 	saltLength:  16,
 	keyLength:   32,
 }
@@ -45,7 +44,7 @@ func hashPassword(password string) (encodedHash string, err error) {
 	b64Salt := base64.RawStdEncoding.EncodeToString(salt)
 	b64Hash := base64.RawStdEncoding.EncodeToString(hash)
 
-	encodedHash = fmt.Sprintf("$argon2id$v=%d$m=%d,t=%d,p=%d$%s$%s", argon2.Version, 64*1024, 3, 2, b64Salt, b64Hash)
+	encodedHash = fmt.Sprintf("$argon2id$v=%d$m=%d,t=%d,p=%d$%s$%s", argon2.Version, defaultParams.memory, defaultParams.iterations, defaultParams.parallelism, b64Salt, b64Hash)
 
 	return encodedHash, nil
 }

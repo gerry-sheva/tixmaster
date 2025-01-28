@@ -1,5 +1,5 @@
 -- name: GetUser :one
-select user_id, username, email from users where user_id=$1;
+select email, password from users where username=$1 or email=$2;
 
 -- name: NewUser :one
-insert into users (username, email, password) values ($1, $2, $3) returning user_id, username, email;
+insert into users (username, email, password) values ($1, $2, $3) returning email;

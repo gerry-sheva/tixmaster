@@ -7,29 +7,31 @@ package sqlc
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const getUser = `-- name: GetUser :one
-select user_id, username, email from users where user_id=$1
+select email, password from users where username=$1 or email=$2
 `
 
-type GetUserRow struct {
-	UserID   pgtype.UUID
+type GetUserParams struct {
 	Username string
 	Email    string
 }
 
-func (q *Queries) GetUser(ctx context.Context, userID pgtype.UUID) (GetUserRow, error) {
-	row := q.db.QueryRow(ctx, getUser, userID)
+type GetUserRow struct {
+	Email    string
+	Password string
+}
+
+func (q *Queries) GetUser(ctx context.Context, arg GetUserParams) (GetUserRow, error) {
+	row := q.db.QueryRow(ctx, getUser, arg.Username, arg.Email)
 	var i GetUserRow
-	err := row.Scan(&i.UserID, &i.Username, &i.Email)
+	err := row.Scan(&i.Email, &i.Password)
 	return i, err
 }
 
 const newUser = `-- name: NewUser :one
-insert into users (username, email, password) values ($1, $2, $3) returning user_id, username, email
+insert into users (username, email, password) values ($1, $2, $3) returning email
 `
 
 type NewUserParams struct {
@@ -38,15 +40,9 @@ type NewUserParams struct {
 	Password string
 }
 
-type NewUserRow struct {
-	UserID   pgtype.UUID
-	Username string
-	Email    string
-}
-
-func (q *Queries) NewUser(ctx context.Context, arg NewUserParams) (NewUserRow, error) {
+func (q *Queries) NewUser(ctx context.Context, arg NewUserParams) (string, error) {
 	row := q.db.QueryRow(ctx, newUser, arg.Username, arg.Email, arg.Password)
-	var i NewUserRow
-	err := row.Scan(&i.UserID, &i.Username, &i.Email)
-	return i, err
+	var email string
+	err := row.Scan(&email)
+	return email, err
 }
