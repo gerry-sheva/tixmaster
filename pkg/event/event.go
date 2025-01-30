@@ -53,9 +53,12 @@ func NewEvent(
 		return sqlc.NewEventRow{}, err
 	}
 
+	println(event.Name)
+
 	index := meilisearch.Index("event")
 	_, err = index.AddDocuments(event)
 	if err != nil {
+		println("IS IT HERE?")
 		return sqlc.NewEventRow{}, err
 	}
 
