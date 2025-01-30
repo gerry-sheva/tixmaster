@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"mime/multipart"
 
+	"github.com/gerry-sheva/tixmaster/pkg/common"
 	"github.com/gerry-sheva/tixmaster/pkg/database/sqlc"
-	"github.com/imagekit-developer/imagekit-go"
 	"github.com/imagekit-developer/imagekit-go/api/uploader"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func newHost(ctx context.Context, dbpool *pgxpool.Pool, ik *imagekit.ImageKit, avatar multipart.File, p *NewHostInput) (sqlc.NewHostRow, error) {
+func NewHost(ctx context.Context, dbpool *pgxpool.Pool, ik common.ImageKit, avatar multipart.File, p *NewHostInput) (sqlc.NewHostRow, error) {
 	resp, err := ik.Uploader.Upload(ctx, avatar, uploader.UploadParam{
 		FileName: fmt.Sprintf("%s.webp", p.Name),
+		Folder:   ik.Dir,
 	})
 	if err != nil {
 		return sqlc.NewHostRow{}, err

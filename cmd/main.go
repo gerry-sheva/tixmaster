@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/gerry-sheva/tixmaster/pkg/api"
 	"github.com/gerry-sheva/tixmaster/pkg/database"
@@ -21,8 +22,9 @@ func main() {
 		panic(err)
 	}
 
-	dbpool := database.ConnectDB()
+	dbpool := database.ConnectDB(os.Getenv("DATABASE_URL"))
 	defer dbpool.Close()
 
+	print("Starting server")
 	api.StartServer(dbpool, client, ik)
 }
