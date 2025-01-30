@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres
+    image: postgres:alpine
     ports:
       - "5432:5432"
     environment:
@@ -9,7 +9,7 @@ services:
     # volumes:
     #   - db_data:/var/lib/postgresql/data
   meilisearch:
-    image: getmeili/meilisearch:v1.12.7
+    image: getmeili/meilisearch:v1.12.8
     ports:
       - "7700:7700"
     environment:
