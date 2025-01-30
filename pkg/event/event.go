@@ -12,7 +12,7 @@ import (
 	"github.com/meilisearch/meilisearch-go"
 )
 
-func newEvent(
+func NewEvent(
 	ctx context.Context,
 	dbpool *pgxpool.Pool,
 	meilisearch meilisearch.ServiceManager,

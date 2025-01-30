@@ -11,12 +11,13 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func newVenue(ctx context.Context, dbpool *pgxpool.Pool, ik *imagekit.ImageKit, img multipart.File, p NewVenueInput) (sqlc.NewVenueRow, error) {
+func NewVenue(ctx context.Context, dbpool *pgxpool.Pool, ik *imagekit.ImageKit, img multipart.File, p *NewVenueInput) (sqlc.NewVenueRow, error) {
 	resp, err := ik.Uploader.Upload(ctx, img, uploader.UploadParam{
 		FileName: fmt.Sprintf("%s.webp", p.Name),
 	})
 
 	if err != nil {
+		println("Helloo!")
 		return sqlc.NewVenueRow{}, err
 	}
 

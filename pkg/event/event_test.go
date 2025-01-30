@@ -1,0 +1,177 @@
+package event_test
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+	"testing"
+	"time"
+
+	"github.com/gerry-sheva/tixmaster/pkg/common"
+	"github.com/gerry-sheva/tixmaster/pkg/database"
+	"github.com/gerry-sheva/tixmaster/pkg/event"
+	"github.com/gerry-sheva/tixmaster/pkg/host"
+	"github.com/gerry-sheva/tixmaster/pkg/testhelper"
+	"github.com/gerry-sheva/tixmaster/pkg/venue"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
+	search "github.com/meilisearch/meilisearch-go"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
+)
+
+type EventTestSuite struct {
+	suite.Suite
+	pgContainer *testhelper.PostgresContainer
+	ctx         context.Context
+	dbpool      *pgxpool.Pool
+	ik          common.ImageKit
+	hostImg     *os.File
+	venueImg    *os.File
+	thumbnail   *os.File
+	banner      *os.File
+}
+
+func (suite *EventTestSuite) SetupSuite() {
+	suite.ctx = context.Background()
+	pgContainer, err := testhelper.CreateTestContainer(suite.ctx)
+	if err != nil {
+		log.Fatalf("Failed to start pg container: %s", err)
+	}
+	suite.pgContainer = pgContainer
+
+	dbpool := database.ConnectDB(suite.pgContainer.ConnectionString)
+	suite.dbpool = dbpool
+
+	ik, err := testhelper.CreateImageKit()
+	if err != nil {
+		log.Fatalf("Failed to start ImageKit: %s", err)
+	}
+	suite.ik = ik
+
+	hostImg, err := testhelper.NewImage()
+	if err != nil {
+		log.Fatalf("Failed to load img: %s", err)
+	}
+	suite.hostImg = hostImg
+
+	venueImg, err := testhelper.NewImage()
+	if err != nil {
+		log.Fatalf("Failed to load img: %s", err)
+	}
+	suite.venueImg = venueImg
+
+	thumbnail, err := testhelper.NewImage()
+	if err != nil {
+		log.Fatalf("Failed to load img: %s", err)
+	}
+	suite.thumbnail = thumbnail
+
+	banner, err := testhelper.NewImage()
+	if err != nil {
+		log.Fatalf("Failed to load img: %s", err)
+	}
+	suite.banner = banner
+}
+
+func (suite *EventTestSuite) TearDownSuite() {
+	suite.dbpool.Close()
+	suite.hostImg.Close()
+	suite.venueImg.Close()
+	suite.thumbnail.Close()
+	suite.banner.Close()
+	if err := suite.pgContainer.Terminate(suite.ctx); err != nil {
+		log.Fatalf("error terminating postgres container: %s", err)
+	}
+}
+
+func (suite *EventTestSuite) TestCreateEvent() {
+	t := suite.T()
+
+	venueParams := venue.NewVenueInput{
+		Name:     "Test Venue",
+		Capacity: 1000,
+		City:     "City",
+		State:    "State",
+	}
+	venue, err := venue.NewVenue(suite.ctx, suite.dbpool, suite.ik.ImageKit, suite.venueImg, &venueParams)
+	if err != nil {
+		log.Fatalf("Failed to create new venue: %s", err)
+	}
+
+	assert.Equal(t, venueParams.Name, venue.Name)
+	assert.Equal(t, venueParams.Capacity, venue.Capacity)
+	assert.Equal(t, venueParams.City, venue.City)
+	assert.Equal(t, venueParams.State, venue.State)
+
+	hostParams := host.NewHostInput{
+		Name: "Kivvvi",
+		Bio:  "Heelo",
+	}
+
+	newHost, err := host.NewHost(suite.ctx, suite.dbpool, suite.ik, suite.hostImg, &hostParams)
+	if err != nil {
+		log.Fatalf("Failed to create new host: %s", err)
+	}
+
+	assert.NoError(t, err)
+	assert.NotNil(t, newHost)
+
+	assert.Equal(t, hostParams.Name, newHost.Name)
+	assert.Equal(t, hostParams.Bio, newHost.Bio)
+
+	eventParams := event.NewEventInput{
+		Name:             "Event A",
+		Summary:          "Summary",
+		Description:      "Description",
+		Available_ticket: 1000,
+		Starting_date:    pgtype.Timestamptz{Time: time.Now(), Valid: true},
+		Ending_date:      pgtype.Timestamptz{Time: time.Now().Add(5 * time.Hour), Valid: true},
+		Venue_id:         venue.VenueID,
+		Host_id:          newHost.HostID,
+	}
+
+	// Step 1: Start Meilisearch container
+	meiliContainer, err := testcontainers.GenericContainer(suite.ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			Image:        "getmeili/meilisearch:v1.10.3",
+			ExposedPorts: []string{"7700/tcp"},
+			WaitingFor:   wait.ForHTTP("/health").WithStartupTimeout(30 * time.Second),
+			Env: map[string]string{
+				"MEILI_MASTER_KEY": "MASTER_KEY",
+			},
+		},
+		Started: true,
+	})
+	if err != nil {
+		log.Fatalf("Failed to start Meilisearch container: %v", err)
+	}
+	defer meiliContainer.Terminate(suite.ctx)
+
+	// Step 2: Get the container's host and port
+	host, err := meiliContainer.Host(suite.ctx)
+	if err != nil {
+		log.Fatalf("Failed to get container host: %v", err)
+	}
+	port, err := meiliContainer.MappedPort(suite.ctx, "7700")
+	if err != nil {
+		log.Fatalf("Failed to get container port: %v", err)
+	}
+
+	// Step 3: Create a Meilisearch client
+	meiliClient := search.New(fmt.Sprintf("http://%s:%s", host, port.Port()), search.WithAPIKey("MASTER_KEY"))
+
+	newEvent, err := event.NewEvent(suite.ctx, suite.dbpool, meiliClient, suite.ik.ImageKit, suite.thumbnail, suite.banner, &eventParams)
+	if err != nil {
+		log.Fatalf("Failed to create new event: %s", err)
+	}
+
+	assert.Equal(t, newEvent.Name, eventParams.Name)
+}
+
+func TestEventSuite(t *testing.T) {
+	suite.Run(t, new(EventTestSuite))
+}

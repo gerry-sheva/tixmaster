@@ -26,7 +26,7 @@ func New(dbpool *pgxpool.Pool, imagekit *imagekit.ImageKit) *HostApi {
 	}
 }
 
-func (api *HostApi) NewHost(w http.ResponseWriter, r *http.Request) {
+func (api *HostApi) CreateHost(w http.ResponseWriter, r *http.Request) {
 	var input NewHostInput
 	avatar, _, err := r.FormFile("host_avatar")
 	if err != nil {

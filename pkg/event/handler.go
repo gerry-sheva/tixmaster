@@ -28,7 +28,7 @@ func New(
 	}
 }
 
-func (api *EventApi) NewEvent(w http.ResponseWriter, r *http.Request) {
+func (api *EventApi) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	var input NewEventInput
 	thumbnail, _, err := r.FormFile("event_thumbnail")
 	if err != nil {
@@ -47,7 +47,7 @@ func (api *EventApi) NewEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := newEvent(
+	event, err := NewEvent(
 		r.Context(),
 		api.dbpool,
 		api.meilisearch,

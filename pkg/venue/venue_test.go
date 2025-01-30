@@ -1,4 +1,4 @@
-package host_test
+package venue_test
 
 import (
 	"context"
@@ -8,14 +8,14 @@ import (
 
 	"github.com/gerry-sheva/tixmaster/pkg/common"
 	"github.com/gerry-sheva/tixmaster/pkg/database"
-	"github.com/gerry-sheva/tixmaster/pkg/host"
 	"github.com/gerry-sheva/tixmaster/pkg/testhelper"
+	"github.com/gerry-sheva/tixmaster/pkg/venue"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
-type HostTestSuite struct {
+type VenueTestSuite struct {
 	suite.Suite
 	pgContainer *testhelper.PostgresContainer
 	ctx         context.Context
@@ -24,7 +24,7 @@ type HostTestSuite struct {
 	img         *os.File
 }
 
-func (suite *HostTestSuite) SetupSuite() {
+func (suite *VenueTestSuite) SetupSuite() {
 	suite.ctx = context.Background()
 	pgContainer, err := testhelper.CreateTestContainer(suite.ctx)
 	if err != nil {
@@ -48,7 +48,7 @@ func (suite *HostTestSuite) SetupSuite() {
 	suite.img = img
 }
 
-func (suite *HostTestSuite) TearDownSuite() {
+func (suite *VenueTestSuite) TearDownSuite() {
 	suite.dbpool.Close()
 	suite.img.Close()
 	if err := suite.pgContainer.Terminate(suite.ctx); err != nil {
@@ -56,23 +56,26 @@ func (suite *HostTestSuite) TearDownSuite() {
 	}
 }
 
-func (suite *HostTestSuite) TestCreateHost() {
+func (suite *VenueTestSuite) TestCreateVenue() {
 	t := suite.T()
 
-	p := host.NewHostInput{
-		Name: "Kivvvi",
-		Bio:  "Heelo",
+	p := venue.NewVenueInput{
+		Name:     "Test Venue",
+		Capacity: 1000,
+		City:     "City",
+		State:    "State",
+	}
+	venue, err := venue.NewVenue(suite.ctx, suite.dbpool, suite.ik.ImageKit, suite.img, &p)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	newHost, err := host.NewHost(suite.ctx, suite.dbpool, suite.ik, suite.img, &p)
-
-	assert.NoError(t, err)
-	assert.NotNil(t, newHost)
-
-	assert.Equal(t, p.Name, newHost.Name)
-	assert.Equal(t, p.Bio, newHost.Bio)
+	assert.Equal(t, p.Name, venue.Name)
+	assert.Equal(t, p.Capacity, venue.Capacity)
+	assert.Equal(t, p.City, venue.City)
+	assert.Equal(t, p.State, venue.State)
 }
 
-func TestHostSuite(t *testing.T) {
-	suite.Run(t, new(HostTestSuite))
+func TestVenueSuite(t *testing.T) {
+	suite.Run(t, new(VenueTestSuite))
 }

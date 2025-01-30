@@ -21,7 +21,7 @@ func New(dbpool *pgxpool.Pool, ik *imagekit.ImageKit) *VenueAPI {
 	}
 }
 
-func (api *VenueAPI) NewVenue(w http.ResponseWriter, r *http.Request) {
+func (api *VenueAPI) CreateVenue(w http.ResponseWriter, r *http.Request) {
 	var input NewVenueInput
 	img, _, err := r.FormFile("venue_img")
 	if err != nil {
@@ -34,7 +34,7 @@ func (api *VenueAPI) NewVenue(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	venue, err := newVenue(r.Context(), api.dbpool, api.ik, img, input)
+	venue, err := NewVenue(r.Context(), api.dbpool, api.ik, img, &input)
 	if err != nil {
 		apierror.ServerErrorResponse(w)
 		return

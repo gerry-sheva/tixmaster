@@ -59,9 +59,9 @@ func StartServer(dbpool *pgxpool.Pool, meilisearch meilisearch.ServiceManager, i
 	mux.Handle("/", middleware.Auth(http.HandlerFunc(app.healthcheckHandler)))
 	mux.HandleFunc("POST /register", usersAPI.RegisterUser)
 	mux.HandleFunc("POST /login", usersAPI.LoginUser)
-	mux.HandleFunc("POST /event", eventAPI.NewEvent)
-	mux.HandleFunc("POST /host", hostAPI.NewHost)
-	mux.HandleFunc("POST /venue", venueAPI.NewVenue)
+	mux.HandleFunc("POST /event", eventAPI.CreateEvent)
+	mux.HandleFunc("POST /host", hostAPI.CreateHost)
+	mux.HandleFunc("POST /venue", venueAPI.CreateVenue)
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
